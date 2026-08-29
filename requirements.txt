@@ -1,0 +1,6 @@
+pygit2
+pydantic
+omegaconf
+pydantic-client
+schedule
+file_read_backwards

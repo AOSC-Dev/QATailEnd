@@ -1,0 +1,7 @@
+remote:
+  qa: http://localhost:8000/
+  buildbot: buildbot-111
+  token:
+ciel:
+  path: /buildbot/qa-ciel
+  instance: build-env
