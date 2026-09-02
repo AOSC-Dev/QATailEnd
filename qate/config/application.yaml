@@ -5,3 +5,6 @@ remote:
 ciel:
   path: /buildbot/qa-ciel
   instance: build-env
+qata:
+  weights:
+    enable: false

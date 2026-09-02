@@ -6,7 +6,7 @@ from typing import List
 from models.models import QARequestBuilds
 from file_read_backwards import FileReadBackwards
 import service.ciel_root
-import requests
+import traceback
 
 
 class QAProcess:
@@ -17,6 +17,10 @@ class QAProcess:
     @property
     def ciel_path(self):
         return self.config.ciel.path
+
+    @property
+    def weights_enable(self):
+        return self.config.qata.weights.enable
 
     @property
     def inst(self):
@@ -30,25 +34,47 @@ class QAProcess:
     package_last_fetch_timestamp = 0
     package_last_list: List[service.ciel_root.ABPackage]
     package_weights = []
+
     @property
     def package_list(self):
         # 格式 秒
         now = time.time()
-        # 一小时以内不做fetch和reset
-        if (now - (60 * 60)) > self.package_last_fetch_timestamp:
+        # 48小时以内不做fetch和reset
+        if (now - (48 * 60 * 60)) > self.package_last_fetch_timestamp:
             self.package_last_fetch_timestamp = now
             service.ciel_root.fetch_tree(self.ciel_path)
             service.ciel_root.reset_to_origin(self.ciel_path)
-            self.package_last_list = service.ciel_root.get_all_package(self.ciel_path)
+            self.package_last_list = service.ciel_root.get_all_package(self.ciel_path, self.weights_enable)
+            self.__compute_package_weights(self.package_last_list)
         return self.package_last_list
 
-    def compute_package_weights(self):
-        pass
+    def __compute_package_weights(self, packages):
+        # default weight
+        self.package_weights = [1.0 for _ in packages]
+        if not self.weights_enable:
+            return
+        min_commit_time = 0
+        max_commit_time = 0
+        for pack in packages:
+            if pack.last_commit_time == 0:
+                continue
+            min_commit_time = pack.last_commit_time if min_commit_time == 0 else min(min_commit_time,
+                                                                                     pack.last_commit_time)
+            max_commit_time = max(max_commit_time, pack.last_commit_time)
+        for pack_index in range(len(packages)):
+            pack = packages[pack_index]
+            if pack.last_commit_time == 0:
+                # 当last_commit_time为0 说明读取失败或者最后一次更新时间"过旧"
+                # 按照最大方式处理
+                self.package_weights[pack_index] *= 2
+            else:
+                # 此处，为 提交越旧 最终权重越接近 *2，提交越新 最终权重越接近 *1
+                self.package_weights[pack_index] *= ((max_commit_time - pack.last_commit_time) /
+                                                     (max_commit_time - min_commit_time)) + 1
 
     def execute_build(self):
         package_list = self.package_list
-        index = random.choice(package_list)
-        a_pack = package_list[index]
+        a_pack = random.choices(package_list, weights=self.package_weights, k=1)[0]
         print("start build package ", a_pack.package_name)
         context = service.ciel_root.build(self.ciel_path, self.inst, a_pack)
         try:
@@ -88,4 +114,4 @@ class QAProcess:
         try:
             self.execute_build()
         except Exception as e:
-            print("Some Error:", e)
+            traceback.print_exception(type(e), e, e.__traceback__)
