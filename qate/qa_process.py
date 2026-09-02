@@ -6,6 +6,7 @@ from typing import List
 from models.models import QARequestBuilds
 from file_read_backwards import FileReadBackwards
 import service.ciel_root
+import requests
 
 
 class QAProcess:
@@ -28,7 +29,7 @@ class QAProcess:
     # package_list懒加载+按需刷新
     package_last_fetch_timestamp = 0
     package_last_list: List[service.ciel_root.ABPackage]
-
+    package_weights = []
     @property
     def package_list(self):
         # 格式 秒
@@ -41,9 +42,12 @@ class QAProcess:
             self.package_last_list = service.ciel_root.get_all_package(self.ciel_path)
         return self.package_last_list
 
+    def compute_package_weights(self):
+        pass
+
     def execute_build(self):
         package_list = self.package_list
-        index = random.randint(0, len(package_list) - 1)
+        index = random.choice(package_list)
         a_pack = package_list[index]
         print("start build package ", a_pack.package_name)
         context = service.ciel_root.build(self.ciel_path, self.inst, a_pack)
@@ -81,4 +85,7 @@ class QAProcess:
                 os.remove(context["file"])
 
     def execute(self):
-        self.execute_build()
+        try:
+            self.execute_build()
+        except Exception as e:
+            print("Some Error:", e)

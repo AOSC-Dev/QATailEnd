@@ -28,7 +28,7 @@ ciel:
 2. Keep the running user and the ciel/TREE directory permissions the same.
 
 ```shell
-# It will automatically update the ABB repository/checkout to the latest stable branch, which requires write permissions.
+# It will automatically update the ABBS repository/checkout to the latest stable branch, which requires write permissions.
 git fetch origin
 git reset --hard origin/stable
 ```
