@@ -4,6 +4,8 @@ QATailEnd is an agent for [QAshboard](https://github.com/AOSC-Dev/QAshboard), ru
 
 ## Configuration
 
+The configuration must be named `application.yaml` under the `qate` folder.
+
 ```yaml
 remote:
   # QAshboard Service URL
@@ -19,7 +21,23 @@ ciel:
   instance: build-env
 ```
 
-To run - `cd QTailEnd && python3 main.py`
+To run - `cd qate && python3 main.py`, or alternatively, install a systemd service as follows:
+
+```
+[Unit]
+Description=QATailEnd Agent
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=30
+ExecStart=/usr/bin/python3 main.py
+WorkingDirectory=/path/to/qatailend/qate
+
+[Install]
+WantedBy=multi-user.target
+```
 
 ## Requirements
 
