@@ -1,9 +1,8 @@
 # QATailEnd
 
-## Quick preview
+QATailEnd is an agent for [QAshboard](https://github.com/AOSC-Dev/QAshboard), running on build hosts to call Ciel and to report build results.
 
-1. Find [QAshboard](https://github.com/AOSC-Dev/QAshboard) Service
-2. rewrite [application.yaml](qate/config/application.yaml) file
+## Configuration
 
 ```yaml
 remote:
@@ -20,15 +19,8 @@ ciel:
   instance: build-env
 ```
 
-3. run `cd qate; python3 main.py`
+To run - `cd QTailEnd && python3 main.py`
 
-## Require
+## Requirements
 
-1. Use ROOT User (`ciel` need) or "sudo" NOPASSWD
-2. Keep the running user and the ciel/TREE directory permissions the same.
-
-```shell
-# It will automatically update the ABBS repository/checkout to the latest stable branch, which requires write permissions.
-git fetch origin
-git reset --hard origin/stable
-```
+Use root or a no-password-sudo user to run the agent, as Ciel needs elevated permissions.
