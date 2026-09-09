@@ -10,6 +10,10 @@ import dulwich.client
 import dulwich.diff_tree
 import dulwich.porcelain
 import sys
+import logging
+
+logger = logging.getLogger()
+
 
 @dataclasses.dataclass
 class ABPackage:
@@ -99,7 +103,7 @@ def get_all_package(root_dir, need_last_commit_time=False):
                 if pack.last_commit_time != 0:
                     continue
                 pack.last_commit_time = commit.commit_time
-                print("Found Package last commit time: ", package_dir, commit.commit_time)
+                logger.debug("Found Package:%s, last commit time:%s ", package_dir, commit.commit_time)
                 del packages_index[package_dir]
             if len(packages_index) == 0:
                 break

@@ -6,7 +6,9 @@ from typing import List
 from models.models import QARequestBuilds
 from file_read_backwards import FileReadBackwards
 import service.ciel_root
-import traceback
+import logging
+
+logger = logging.getLogger()
 
 
 class QAProcess:
@@ -14,6 +16,7 @@ class QAProcess:
         self.config = config
         self.qaapiclient = qaapiclient
         self.arch = service.ciel_root.get_root_arch(self.ciel_path)
+        logger.info("Ciel Root arch: %s", self.arch)
 
     @property
     def ciel_path(self):
@@ -80,7 +83,7 @@ class QAProcess:
     def execute_build(self):
         package_list = self.package_list
         a_pack = random.choices(package_list, weights=self.package_weights, k=1)[0]
-        print("start build package ", a_pack.package_name)
+        logger.info("start build package %s", a_pack.package_name)
         context = service.ciel_root.build(self.ciel_path, self.inst, a_pack)
         try:
             # 等待结束
@@ -92,14 +95,14 @@ class QAProcess:
             with FileReadBackwards(context["file"]) as f:
                 for line in f:
                     if 'ACBS Build Successful' in line:
-                        print("ACBS Build Successful")
+                        logger.info("ACBS Build Successful")
                         build_status = True
                         break
                     if 'Nothing to do after dependency resolution' in line:
-                        print("end build None")
+                        logger.info("end build None")
                         return
                     if 'Build error' in line:
-                        print("Build Error")
+                        logger.warning("Build Error")
                         build_status = False
                         break
             build_status_n = False if build_status is None else build_status
@@ -120,4 +123,4 @@ class QAProcess:
         try:
             self.execute_build()
         except Exception as e:
-            traceback.print_exception(type(e), e, e.__traceback__)
+            logger.error("{}", type(e), exc_info=e)
