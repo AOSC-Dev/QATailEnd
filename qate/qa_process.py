@@ -1,6 +1,6 @@
 import os
 import random
-from datetime import datetime
+from datetime import datetime, timezone
 import time
 from typing import List
 from models.models import QARequestBuilds
@@ -100,7 +100,7 @@ class QAProcess:
             build_status_n = False if build_status is None else build_status
 
             qa_request_builds = QARequestBuilds(package_name=a_pack.package_name,
-                                                success=build_status_n, timestamp=datetime.now(),
+                                                success=build_status_n, timestamp=datetime.now(timezone.utc),
                                                 architecture=service.ciel_root.get_root_arch(self.ciel_path),
                                                 buildbot=self.buildbot, failure_reason="")
             response = self.qaapiclient.add_build(qa_request_builds)
