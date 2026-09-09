@@ -53,7 +53,7 @@ def get_root_arch(root_dir):
     state_file = root_dir + "/" + '.ciel/container/dist/var/lib/apt/extended_states'
     with open(state_file, 'r') as f:
         while f.readable():
-            line = f.readline()
+            line = f.readline().strip()
             if line.startswith(arch_key):
                 return line[len(arch_key) + 2:]  # ": "
     return 'unknown'
