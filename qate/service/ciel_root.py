@@ -9,7 +9,7 @@ import dulwich.repo
 import dulwich.client
 import dulwich.diff_tree
 import dulwich.porcelain
-
+import sys
 
 @dataclasses.dataclass
 class ABPackage:
@@ -26,13 +26,13 @@ def is_root_user():
 
 # 获取最新的GIT树
 def fetch_tree(root_dir):
-    with dulwich.repo.Repo(root_dir + "/" + 'TREE') as repo:
-        config = repo.get_config()
-        origin_url = config.get(('remote', 'origin'), 'url')
-        print(f"Fetching from origin: {origin_url.decode('utf-8')}...")
-        client, host_path = dulwich.client.get_transport_and_path(origin_url.decode('utf-8'))
-        client.fetch(host_path, repo)
-        print("Fetch complete.")
+    subprocess.Popen(
+        ["git", "fetch"],
+        cwd=root_dir + "/" + 'TREE',
+        stdout=sys.stdout,
+        stderr=sys.stderr,
+        text=True,
+    ).wait()
 
 
 # 重置仓库到最新状态
