@@ -13,6 +13,7 @@ class QAProcess:
     def __init__(self, config, qaapiclient):
         self.config = config
         self.qaapiclient = qaapiclient
+        self.arch = service.ciel_root.get_root_arch(self.ciel_path)
 
     @property
     def ciel_path(self):
@@ -45,6 +46,10 @@ class QAProcess:
             service.ciel_root.fetch_tree(self.ciel_path)
             service.ciel_root.reset_to_origin(self.ciel_path)
             self.package_last_list = service.ciel_root.get_all_package(self.ciel_path, self.weights_enable)
+            # if arch!=amd64 then remove "*+32"
+            if self.arch != "amd64":
+                self.package_last_list = [package for package in self.package_last_list
+                                          if not package.package_name.endswith("+32")]
             self.__compute_package_weights(self.package_last_list)
         return self.package_last_list
 
@@ -101,7 +106,7 @@ class QAProcess:
 
             qa_request_builds = QARequestBuilds(package_name=a_pack.package_name,
                                                 success=build_status_n, timestamp=datetime.now(timezone.utc),
-                                                architecture=service.ciel_root.get_root_arch(self.ciel_path),
+                                                architecture=self.arch,
                                                 buildbot=self.buildbot, failure_reason="")
             response = self.qaapiclient.add_build(qa_request_builds)
             if not build_status_n:
