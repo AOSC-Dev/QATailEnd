@@ -105,7 +105,8 @@ class QAProcess:
             build_status_n = False if build_status is None else build_status
 
             qa_request_builds = QARequestBuilds(package_name=a_pack.package_name,
-                                                success=build_status_n, timestamp=datetime.now(timezone.utc),
+                                                success=build_status_n,
+                                                timestamp="{:.0f}".format(int(datetime.now(timezone.utc).timestamp() * 1000)),
                                                 architecture=self.arch,
                                                 buildbot=self.buildbot, failure_reason="")
             response = self.qaapiclient.add_build(qa_request_builds)

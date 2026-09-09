@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime
 
 from pydantic import BaseModel
 
@@ -10,7 +9,7 @@ class QAResponse(BaseModel):
 class QARequestBuilds(BaseModel):
     package_name: str
     success: bool
-    timestamp: datetime
+    timestamp: str
     architecture: str
     buildbot: str
     failure_reason: str
