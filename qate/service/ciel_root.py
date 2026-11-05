@@ -109,6 +109,22 @@ def get_all_package(root_dir, need_last_commit_time=False):
                 break
     return packages
 
+def try_update_os(root_dir):
+    fd, path = tempfile.mkstemp(suffix='.out', prefix="ciel-test-update-os-", dir=None)
+    command = []
+    if not is_root_user():
+        command.append("sudo")
+    command.extend(['ciel', 'update-os'])
+    out = open(fd, mode="wt+")
+    process = subprocess.Popen(
+        command,
+        cwd=root_dir,
+        stdout=out,
+        stderr=out,
+        text=True,
+    )
+    return {'file': path, 'out': out, 'process': process}
+
 
 # 构建
 # 注意"返回信息"需要自己释放

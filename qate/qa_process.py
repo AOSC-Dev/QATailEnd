@@ -83,6 +83,13 @@ class QAProcess:
     def execute_build(self):
         package_list = self.package_list
         a_pack = random.choices(package_list, weights=self.package_weights, k=1)[0]
+        logger.info("try update-os package ...")
+        update_context = service.ciel_root.try_update_os(self.ciel_path)
+        update_context['process'].wait()
+        update_context["out"].close()
+        if update_context["file"] is not None:
+            os.remove(update_context["file"])
+
         logger.info("start build package %s", a_pack.package_name)
         context = service.ciel_root.build(self.ciel_path, self.inst, a_pack)
         try:
